@@ -1,4 +1,5 @@
 // Update with your config settings.
+// Update with your config settings.
 // const connection = process.env.DB_CONNECTION_STRING;
 const connection = {
   connectionString: process.env.DB_CONNECTION_STRING, // IMPORTANT - HEROKU SETS THIS AND CHANGES IT PERIODICALLY
