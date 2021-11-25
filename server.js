@@ -8,6 +8,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const bcrypt = require('bcrypt');
 
+var bodyParser = require('body-parser')
+
 const saltRounds = 10;
 const { hash, compare } = bcrypt; 
 
@@ -33,22 +35,6 @@ function getPasswordHashByUser(username){
     //     .then((data) => data[0].passwordHash)
 }
 
-async function createNewUser(username, passwordHash){
-    await knex('users')
-        .where({ username })
-        .then(result => {
-            if (result.length > 0) {
-                res.status(409).send('This username is already in use.')
-            } else {
-            knex('users')
-                .insert({ username, passwordHash })
-                .returning(['id', 'user_name'])
-                .then(newUser => res.status(201).json(newUser[0]))
-                // .then(data=>data);
-            }
-    })
-}
-
 app.use(morgan());
 app.use(cors());
 app.use(express.json());
@@ -56,19 +42,37 @@ app.use(express.urlencoded({ extended: true }));
 
 //create user
 app.post('/users', (req, res) => {
-    let { body } = req;
-    let { username, passwordRaw } = body;
-    console.log('user received:', username)
-
+    let username = req.body.username;
+    let passwordRaw = req.body.passwordRaw;
+    console.log('user received:', [username, passwordRaw])
     hash(passwordRaw, saltRounds)
         .then((passwordHash) => {
-            console.log('Raw password:', passwordRaw)
-            console.log('Hashed Password', passwordHash)
-            createNewUser(username, passwordHash)
-                .then((data) = res.status(201).json('NEW USER CREATED'))
-                .catch((err) => res.status(500).json(err));
+            console.log('Raw password:', passwordRaw);
+            console.log('Hashed Password', passwordHash);
+            knex('users')
+        // .where({username: username})
+        // .then(result => {
+            // console.log('createUser ', result);
+            // if (result !== []) {
+            //     res.status(409).send('This username is already in use.')
+            // } else {
+                // knex('users')
+            .insert({ username: username, password: passwordHash })
+            .returning('username')
+                    // .then(newUser => res.status(201).json(newUser[0])
+            .then((data) = res.status(201).json(`CREATED NEW USER ${username}`))
+
+                        // res.status(201).json(result)
+                    // )
+                    //     // .then(data=>data);
+                        // .then((data) = res.status(201).json(`CREATED NEW USER ${username}`))
+
+            .catch((err) => res.status(500).json(err));
+                    // }
+                // })
+                // .catch((err) => res.status(500).json(err));
         })
-        .catch((err) => res.status(500).json(err));
+        // .catch((err) => res.status(500).json(err));
 });
 
 // app.post('/login', (req, res) => {
@@ -98,13 +102,13 @@ app.post('/login', (req, res) => {
         .then((passwordHash) => {
             console.log('Raw password supplied:', passwordRaw)
             console.log('Hashed Password form db', passwordHash)
-            compare( passwordRaw, passwordHash )
-                .then((isMatch) => {
-                    // if (isMatch) res.status(202).json('PASSWORDS MATCH');
-                    if (isMatch) res.status(202).json(result[0]);
-                    else res.status(401).json('NO PASSWORD MATCH');
-                })
-                .catch((err) => res.status(500).json(err))
+            // compare( passwordRaw, passwordHash )
+            //     .then((isMatch) => {
+            //         // if (isMatch) res.status(202).json('PASSWORDS MATCH');
+            //         if (isMatch) res.status(202).json(result[0]);
+            //         else res.status(401).json('NO PASSWORD MATCH');
+            //     })
+            //     .catch((err) => res.status(500).json(err))
         })
         .then(res.send())
 });
