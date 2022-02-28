@@ -2,7 +2,7 @@
 const express = require('express');
 const app = express();
 require("dotenv").config();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001; //try 3001 
 const knex = require('knex')(require('./knexfile.js')[process.env.NODE_ENV || 'development']);
 const cors = require('cors');
 const morgan = require('morgan');

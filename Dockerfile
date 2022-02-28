@@ -11,7 +11,7 @@ EXPOSE 3001
 EXPOSE 3000
 
 # //remove for production (dont expose to public)
-# EXPOSE 5432
+EXPOSE 5432
 
 RUN rm -f node_modules
 
